@@ -14,35 +14,37 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Overview
+## Overview
 
-#### In this assignment, we are provided a spreadsheet that describes August 2021 data for Israeli hospitalization (“Severe Cases”) rates for people under 50 (assume “50 and under”) and over 50, for both un-vaccinated and fully vaccinated populations. We are required to analyze the data, and try to answer the questions below. High level domain knowledge is needed around: 
+In this assignment, we are provided a spreadsheet that describes August 2021 data for Israeli hospitalization (“Severe Cases”) rates for people under 50 (assume “50 and under”) and over 50, for both un-vaccinated and fully vaccinated populations. We are required to analyze the data, and try to answer the questions below. High level domain knowledge is needed around: 
 
-#### (1) Israel’s total population (per the World Bank it is 9.216 million as of 2020), 
-#### (2) Who is eligible to receive vaccinations, and 
-#### (3) What does it mean to be fully vaccinated? Please note any apparent discrepancies that you observe in your analysis.
+ (1) Israel’s total population (per the World Bank it is 9.216 million as of 2020), 
+ (2) Who is eligible to receive vaccinations, and 
+ (3) What does it mean to be fully vaccinated? Please note any apparent discrepancies that you observe in your analysis.
 
 #### Questions to Answer:
-#### 1. Create a .CSV file (or optionally, a relational database!) that includes the information in the spreadsheet.  You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.
+1. Create a .CSV file (or optionally, a relational database!) that includes the information in the spreadsheet.  You’re encouraged to use a “wide” structure similar to how the information appears above, so that you can practice tidying and transformations as described below.
 
-#### 2. Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.
+2. Read the information from your .CSV file into R, and use tidyr and dplyr as needed to tidy and transform your data.
 
-#### 3. Perform analysis as described in the spreadsheet and above.
+3. Perform analysis as described in the spreadsheet and above.
 
-#### 4. Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative descriptions of your data cleanup work, analysis, and conclusions. Please include in your homework submission: 1) The URL to the .Rmd file in your GitHub repository, and 2) The URL for your rpubs.com web page.
+4. Your code should be in an R Markdown file, posted to rpubs.com, and should include narrative descriptions of your data cleanup work, analysis, and conclusions. Please include in your homework submission: 1) The URL to the .Rmd file in your GitHub repository, and 2) The URL for your rpubs.com web page.
 
-#### Upon examination the question, we looked more closely at what appears to be the blog that this dataset was posted (see blog at:  https://www.covid-datascience.com/post/israeli-data-how-can-efficacy-vs-severe-disease-be-strong-when-60-of-hospitalized-are-vaccinated).  In summary, Jeffrey Morris, the author of the blog challenged what he perceived as a distortion of reports suggesting that vaccines do not work or have lost their effectiveness vs. severe diseases. Morris obtained the original dataset posted by the Isreali government.  The dataset included age stratified data.  Morris translated the header information from Hebrew to English, performed additional calculations to determine population data for all Isrealis at the age of 12 and higher.  
+Upon examination the question, we looked more closely at what appears to be the blog that this dataset was posted (see blog at:  https://www.covid-datascience.com/post/israeli-data-how-can-efficacy-vs-severe-disease-be-strong-when-60-of-hospitalized-are-vaccinated).  In summary, Jeffrey Morris, the author of the blog challenged what he perceived as a distortion of reports suggesting that vaccines do not work or have lost their effectiveness vs. severe diseases. Morris obtained the original dataset posted by the Isreali government.  The dataset included age stratified data.  Morris translated the header information from Hebrew to English, performed additional calculations to determine population data for all Isrealis at the age of 12 and higher.  
 
-#### As background, in this assignment an excel file was stored in the instructor's GitHub account and downloaded to my hard drive.  We then saved the file as a csv and uploaded into account GitHub accounts.  Then, we imported the dataset into R along with the needed libraries.
+As background, in this assignment an excel file was stored in the instructor's GitHub account and downloaded to my hard drive.  We then saved the file as a csv and uploaded into account GitHub accounts.  Then, we imported the dataset into R along with the needed libraries.
 
-#### Loading of Libraries.
+## Analysis
+
+Loading of Libraries.
 
 ```{r load libraries and data}
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
 ```
-#### Load the .csv files and start tidying the data.
+Load the .csv files and start tidying the data.
 
 ```{r}
 
@@ -61,14 +63,15 @@ VaxData <- rename(VaxData, Fully_Vax_Per_100k = `...5`)
 VaxData <- rename(VaxData, Efficacy_vs_Severe_Disease = `Efficacy`)
 ```
 
-#### We can view the dataset with new headers as the cleaning process develops.
+
+We can view the dataset with new headers as the cleaning process develops.
 
 ```{r}
 view(VaxData)
 str(VaxData)
 ```
 
-#### We decided to remove uneeded rows.  We did this by simply removing rows one and two and all rows greater than or equal to the fifth row. 
+We decided to remove uneeded rows.  We did this by simply removing rows one and two and all rows greater than or equal to the fifth row. 
 
 ```{r} 
 # remove unneeded rows
@@ -76,21 +79,21 @@ VaxData <- VaxData %>%
   filter(row(VaxData) >= 2 & row(VaxData) <=5)
 ```
 
-#### We can view the dataset without the uneccesary rows as the cleaning process develops.
+We can view the dataset without the uneccesary rows as the cleaning process develops.
 
 ```{r}
 view(VaxData)
 str(VaxData)
 ```
 
-#### When cleaning all the uneccessary rows, the percentages of the population of vax verse nonvax persons for the categories of under and over 50 years old appear as NA under the Age category.  To address this, we added a '<50' and '>50' character strings.   
+When cleaning all the uneccessary rows, the percentages of the population of vax verse nonvax persons for the categories of under and over 50 years old appear as NA under the Age category.  To address this, we added a '<50' and '>50' character strings.   
 
 ```{r}
 VaxData$Age[[2]] <- c('<50')
 VaxData$Age[[4]] <- c('>50')
 ```
 
-#### We can view the dataset without the uneccesary rows as the cleaning process develops.
+We can view the dataset without the uneccesary rows as the cleaning process develops.
 
 ```{r}
 view(VaxData)
@@ -108,7 +111,7 @@ view(VaxData)
 str(VaxData)
 ```
 
-#### The percentages in their own rows was deemed uneccesary.  We copied the percentages in row two from the Not_Vax column and copied it to the first row of the Not_Vax_% column; and copied the percentages in row four from the Fully_Vax column and copied it to the third row of the Fully_Vax_% columnn.  
+The percentages in their own rows was deemed uneccesary.  We copied the percentages in row two from the Not_Vax column and copied it to the first row of the Not_Vax_% column; and copied the percentages in row four from the Fully_Vax column and copied it to the third row of the Fully_Vax_% columnn.  
 
 ```{r}
 VaxData$`Not_Vax_%`[[1]] <- VaxData$Not_Vax[[2]]
@@ -119,7 +122,7 @@ VaxData$`Fully_Vax_%`[[3]] <- VaxData$Fully_Vax[[4]]
 view(VaxData)
 str(VaxData)
 ```
-#### We removed the second and fourth rows by filtering out the percentages rows.
+We removed the second and fourth rows by filtering out the percentages rows.
 
 ```{r}
 VaxData <- VaxData %>%
@@ -128,7 +131,7 @@ view(VaxData)
 str(VaxData)
 ```
 
-#### We created columns to accommodate the normalized rates per 100,000.  
+We created columns to accommodate the normalized rates per 100,000.  
 
 ```{r}
 VaxData <- VaxData %>%
@@ -140,7 +143,7 @@ view(VaxData)
 str(VaxData)
 ```
 
-#### To calculate the normalized rates, we converted the Fully_Vax_Per_100k, Not_Vax_Per_100k, Fully_Vax, and Not_Vax from characters to numeric values, removed the commas in the numbers with the gsub command, and then created new objects FullyVaxed_Normal_Population and NotVaxed_Normal_Population.
+To calculate the normalized rates, we converted the Fully_Vax_Per_100k, Not_Vax_Per_100k, Fully_Vax, and Not_Vax from characters to numeric values, removed the commas in the numbers with the gsub command, and then created new objects FullyVaxed_Normal_Population and NotVaxed_Normal_Population.
 
 ```{r}
 VaxData$Fully_Vax_Per_100k <- as.numeric(VaxData$Fully_Vax_Per_100k)
@@ -160,7 +163,7 @@ view(VaxData)
 str(VaxData)
 ```
 
-#### The Fully_Vax_Normalized and Not_Vax_Normalized have zero values which we converted to NA values, then replaced them with the Normalized values.  This step sets up the calculation of the Efficacy_vs_Severe_Disease ratios.
+The Fully_Vax_Normalized and Not_Vax_Normalized have zero values which we converted to NA values, then replaced them with the Normalized values.  This step sets up the calculation of the Efficacy_vs_Severe_Disease ratios.
 
 ```{r}
 VaxData$Fully_Vax_Normalized[VaxData$Fully_Vax_Normalized == 0] <- NA
@@ -176,7 +179,7 @@ view(VaxData)
 str(VaxData, digits = 2)
 ```
 
-#### Now still have NA values in the Efficacy_vs_Severe_Disease column.  We need to replace the NA values with a formula to calculate the Efficacy_vs_Severe_Disease rates.  Per the Morris analysis, we used the formula 1 - V/N, where V=rate of infection per 100k for fully vaccinated, N=rate of infection per 100k for unvaccinated.  We created a new object, Efficacy_vs_Severe_Disease and replaced the NA values with the ratios for the Efficacy_vs_Severe_Disease column.
+Now still have NA values in the Efficacy_vs_Severe_Disease column.  We need to replace the NA values with a formula to calculate the Efficacy_vs_Severe_Disease rates.  Per the Morris analysis, we used the formula 1 - V/N, where V=rate of infection per 100k for fully vaccinated, N=rate of infection per 100k for unvaccinated.  We created a new object, Efficacy_vs_Severe_Disease and replaced the NA values with the ratios for the Efficacy_vs_Severe_Disease column.
 
 ```{r}
 Efficacy_vs_Severe_Disease <- round(1 - (Fully_Vax_Normalized / Not_Vax_Normalized), 2)
@@ -187,22 +190,26 @@ view(VaxData)
 str(VaxData)
 ```
 
-#### We created a tibble to view the final outcome. 
+We created a tibble to view the final outcome. 
 
 ```{r}
 head(VaxData) 
 ```
 
-### Question One: Do you have enough information to calculate the population?  What does this total population represent?  
+## Questions & Answers
 
-#### Answer One: In short, there is not enough information to calculate the population.  There are a few issues with Morris' presentation in a summary table.  First, the data that he downloaded was stratified in age groups.  The data included stata at 40-49 and 50-59.  He presented his table for all below and above 50, but his data did included 50 year old persons.  In his table, the age cutoff point should have been presented as greater than or equal to 50.  The second issue is the population count.  The original data excludes persons under 12 years old.  That would partially reconcile the difference between the World Bank estimated population of Isreal at 9.216 million and the total population of everyone vaccinated or not vaccinated, under 50 or over 50 (total = 6,937,546) on the Morris table. However, this reported data is not accurate.  Morris presents his table in two segments, either vaccinated or not vaccinated.  He did not report on partially vaccinated persons, which he did disclose in his blog.  
+#### Question One: Do you have enough information to calculate the population?  What does this total population represent?  
 
-#### The original data set reported by the Isreali government did include partially vaccinated persons.  When Morris reported the percentages of persons vaccinated or not, in both age groups, the reported percentage did not included partially vaccinated persons.  Morris reported that 78.7% of those under 50 years old were fully vaccinated, but he included partially vaccinated in his calculation.  From the information presented, the total population appears to be 6,937,546, but when using that figure, the total vaccinated population percentage is 81.2% (5,634,634/6,937,546).  The inclusion of the partially vaccinated population should have been reported so the reader could arrive at a total population figure of 7,156,910, instead of 6,937,546.  Morris should had considered inclusion of partially vaccinated as not being vaccinated and include those numbers or report partially vaccinated as well as no vaccination and fully vaccinated numbers.  In the United States, until you have all shots, one is not fully vaccinated and considered not vaccinated.  If Isreal follows the same policy, all the percentage figures that Morris reported may be considered misleading.  The fully vaccinated percentages could bolster a case for further vaccine effectiveness.
+Answer One: In short, there is not enough information to calculate the population.  There are a few issues with Morris' presentation in a summary table.  First, the data that he downloaded was stratified in age groups.  The data included stata at 40-49 and 50-59.  He presented his table for all below and above 50, but his data did included 50 year old persons.  In his table, the age cutoff point should have been presented as greater than or equal to 50.  The second issue is the population count.  The original data excludes persons under 12 years old.  That would partially reconcile the difference between the World Bank estimated population of Isreal at 9.216 million and the total population of everyone vaccinated or not vaccinated, under 50 or over 50 (total = 6,937,546) on the Morris table. However, this reported data is not accurate.  Morris presents his table in two segments, either vaccinated or not vaccinated.  He did not report on partially vaccinated persons, which he did disclose in his blog.  
 
-### Question Two: Calculate the Efficacy vs. Disease; Explain your results.
+The original data set reported by the Isreali government did include partially vaccinated persons.  When Morris reported the percentages of persons vaccinated or not, in both age groups, the reported percentage did not included partially vaccinated persons.  Morris reported that 78.7% of those under 50 years old were fully vaccinated, but he included partially vaccinated in his calculation.  From the information presented, the total population appears to be 6,937,546, but when using that figure, the total vaccinated population percentage is 81.2% (5,634,634/6,937,546).  The inclusion of the partially vaccinated population should have been reported so the reader could arrive at a total population figure of 7,156,910, instead of 6,937,546.  Morris should had considered inclusion of partially vaccinated as not being vaccinated and include those numbers or report partially vaccinated as well as no vaccination and fully vaccinated numbers.  In the United States, until you have all shots, one is not fully vaccinated and considered not vaccinated.  If Isreal follows the same policy, all the percentage figures that Morris reported may be considered misleading.  The fully vaccinated percentages could bolster a case for further vaccine effectiveness.
 
-#### Answer Two: The table above summarizes the Efficacy vs. Disease calculations.  For the population under 50 years old, the effectiveness of the vaccination is higher than those over 50 years.  The results show that the vaccines are very effective.  The effectiveness is lesser for those over 50 and can be explained due to the fact that those over 50 are more prone to serious diseases.
+#### Question Two: Calculate the Efficacy vs. Disease; Explain your results.
 
-### Question Three: From your calculation of efficacy vs. disease, are you able to compare the rate of severe cases in unvaccinated individuals to that in vaccinated individuals?
+Answer Two: The table above summarizes the Efficacy vs. Disease calculations.  For the population under 50 years old, the effectiveness of the vaccination is higher than those over 50 years.  The results show that the vaccines are very effective.  The effectiveness is lesser for those over 50 and can be explained due to the fact that those over 50 are more prone to serious diseases.
 
-#### Yes, we can compare the rates. See the calculations above.
+#### Question Three: From your calculation of efficacy vs. disease, are you able to compare the rate of severe cases in unvaccinated individuals to that in vaccinated individuals?
+
+  Yes, we can compare the rates. See the calculations above.
+  
+  
