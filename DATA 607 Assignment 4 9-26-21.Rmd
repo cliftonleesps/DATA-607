@@ -1,7 +1,7 @@
 ---
 title: "DATA 607 Assignment Four"
 author: "Joseph Foy, Cliff Lee"
-date: "9/262/2021"
+date: "9/26/2021"
 output:
   html_document: default
   number_sections: true
